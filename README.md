@@ -1,15 +1,11 @@
-# README
+### QR code:
+The qr code generation is from the following npm library
+https://www.npmjs.com/package/qrcode.vue
 
-This is the [Express](https://expressjs.com) [Hello world](https://expressjs.com/en/starter/hello-world.html) example on [Render](https://render.com).
+### Render:
+When I install a new package on the server, I seem to need
+to delete the yarn.lock and then run `yarn install` to regen
+the yarn file. The server is deployed correctly on render.
 
-The app in this repo is deployed at [https://express.onrender.com](https://express.onrender.com).
-
-## Deployment
-
-See https://render.com/docs/deploy-node-express-app or follow the steps below:
-
-Create a new web service with the following values:
-  * Build Command: `yarn`
-  * Start Command: `node app.js`
-
-That's it! Your web service will be live on your Render URL as soon as the build finishes.
+This is the dashboard link:
+https://dashboard.render.com/web/srv-d2g6ct75r7bs73emhhp0
