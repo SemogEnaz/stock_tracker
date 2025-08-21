@@ -13,7 +13,7 @@ const routes = [
     props: true
   },
   {
-    path: '/addPhoto/:id',
+    path: '/addPhotos/:id',
     name: 'addPhoto',
     component: AddPhotos,
     props: true

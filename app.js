@@ -1,8 +1,8 @@
 const path = require("path")
 const express = require("express");
 const app = express();
-const router = require('./api');
 require('dotenv').config();
+const router = require('./api');
 
 const port = process.env.PORT || 3001;
 
