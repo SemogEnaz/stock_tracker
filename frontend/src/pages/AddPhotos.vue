@@ -1,5 +1,5 @@
 <template>
-    <h2>Add Photos</h2>
+    <h2>Add Photos for item {{ id }}</h2>
 
     <!-- 1) Pick photos -->
     <button type="button" @click="openPicker">Choose or take photo(s)</button>

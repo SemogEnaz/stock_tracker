@@ -1,8 +1,8 @@
 <template>
 
-  <Home />
+  <Title />
 
-  <main>
+  <main style="margin: 5%; margin-top: 0;">
 
     <ul class="nav nav-pills nav-fill">
       <li class="nav-item">
@@ -39,7 +39,7 @@
 </template>
 
 <script setup>
-import Home from './pages/Home.vue';
+import Title from './pages/Title.vue';
 
 
 </script>
