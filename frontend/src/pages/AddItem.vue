@@ -9,7 +9,7 @@
         :gradient-type="gradientType"
         :gradient-start-color="gradientStartColor"
         :gradient-end-color="gradientEndColor"
-        :image-settings='imageSettings'
+        
     />
     <div>
       <h1>Add new iPhone to stock</h1>
@@ -28,6 +28,7 @@
   
   const baseUrl = `https://stock-tracker-mt6k.onrender.com`
   const link_to_add_photos = `${baseUrl}/addPhotos/${id}`
+  console.log(link_to_add_photos)
   const value = ref(link_to_add_photos)
   
   const level = ref<Level>('M')
