@@ -22,12 +22,14 @@
   import { ref } from 'vue'
   import QrcodeVue from 'qrcode.vue'
   import type { Level, RenderAs, GradientType, ImageSettings } from 'qrcode.vue'
-
+  
   const route = useRoute();
   const id = route.params.id;
-
-  const link_to_add_photos = `${id}`
+  
+  const baseUrl = `https://stock-tracker-mt6k.onrender.com`
+  const link_to_add_photos = `${baseUrl}/addPhotos/${id}`
   const value = ref(link_to_add_photos)
+  
   const level = ref<Level>('M')
   const renderAs = ref<RenderAs>('svg')
   const background = ref('#ffffff')
