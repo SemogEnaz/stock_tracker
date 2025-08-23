@@ -3,6 +3,7 @@ const express = require("express");
 const app = express();
 require('dotenv').config();
 const router = require('./api');
+const r2 = require('./r2');
 
 const port = process.env.PORT || 3001;
 
@@ -10,6 +11,7 @@ const distDir = path.join(__dirname, 'frontend', 'dist');
 app.use(express.static(distDir));
 
 app.use('/api', router);
+app.use('/r2', r2);
 
 app.use((_req, res) => {
   res.sendFile(path.join(distDir, 'index.html'));

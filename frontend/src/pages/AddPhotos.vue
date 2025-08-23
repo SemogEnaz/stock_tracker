@@ -1,102 +1,90 @@
 <template>
-    <h2>Add Photos for item {{ id }}</h2>
+  <div class="uploader">
+    <h2>Upload to R2</h2>
 
-    <!-- 1) Pick photos -->
-    <button type="button" @click="openPicker">Choose or take photo(s)</button>
+    <form @submit.prevent="upload" id="f">
+      <label>
+        Object key
+        <input v-model="keyInput" placeholder="0x00015/front.jpg" />
+      </label>
 
-    <!-- Hidden file input -->
-    <input
-        ref="fileInput"
-        type="file"
-        accept="image/*"
-        multiple
-        @change="onFilesSelected"
-        style="display:none"
-    />
+      <label class="file">
+        File
+        <input type="file" accept="image/*" @change="onFile" />
+      </label>
 
-    <!-- 2) Simple status -->
-    <p v-if="files.length">Selected: {{ files.length }} file(s)</p>
+      <button :disabled="!canUpload || busy">
+        {{ busy ? `Uploading… ${progress}%` : 'Upload' }}
+      </button>
+    </form>
 
-    <!-- (optional) one tiny preview so user knows it worked -->
-    <img
-        v-if="previewUrl"
-        :src="previewUrl"
-        alt="preview"
-        style="max-width:140px; display:block; margin:8px 0;"
-    />
+    <div v-if="previewUrl" class="preview">
+      <img :src="previewUrl" alt="preview" />
+    </div>
 
-    <!-- 3) Confirm: send to backend -->
-    <button
-        type="button"
-        :disabled="!files.length || isSubmitting"
-        @click="confirm"
-    >
-        {{ isSubmitting ? 'Submitting…' : 'Confirm' }}
-    </button>
+    <pre v-if="result" class="result">{{ result }}</pre>
+    <div v-if="error" class="error"><strong>Error:</strong> {{ error }}</div>
+  </div>
 </template>
 
 <script setup>
+import { ref, computed } from 'vue'
 
-    import { useRoute } from 'vue-router'
-    import { ref, onBeforeUnmount } from 'vue';
+const API_BASE = '' // same-origin; set to 'http://localhost:3001' in dev if needed
 
-    const route = useRoute();
-    const id = ref(route.params.id);
+const keyInput = ref('0x00015/front.jpg')
+const file = ref(null)
+const busy = ref(false)
+const progress = ref(0)
+const result = ref('')
+const error = ref('')
+const previewUrl = ref(null)
 
-    const fileInput = ref(null)
-    const files = ref([])         // holds File objects (stays in frontend until confirm)
-    const previewUrl = ref('')     // quick feedback
-    const isSubmitting = ref(false)
+const canUpload = computed(() => !!file.value && !!keyInput.value)
 
-    function openPicker() {
-    fileInput.value?.click()
-    }
+function onFile(e) {
+  const f = e.target.files?.[0]
+  if (!f) return
+  file.value = f
+  if (previewUrl.value) URL.revokeObjectURL(previewUrl.value)
+  previewUrl.value = URL.createObjectURL(f)
+}
 
-    function onFilesSelected(e) {
-    // clear previous
-    files.value = []
-    if (previewUrl.value) URL.revokeObjectURL(previewUrl.value)
-    previewUrl.value = ''
+async function upload() {
+  if (!canUpload.value) return
+  busy.value = true
+  error.value = ''
+  result.value = ''
+  progress.value = 0
 
-    const list = Array.from(e.target.files || [])
-    files.value = list
+  try {
+    const fd = new FormData()
+    fd.append('key', keyInput.value)
+    fd.append('file', file.value)
 
-    // show a single tiny preview (first image), optional
-    if (list[0]) previewUrl.value = URL.createObjectURL(list[0])
-    }
-
-    onBeforeUnmount(() => {
-    if (previewUrl.value) URL.revokeObjectURL(previewUrl.value)
+    // fetch (simple) — mirrors your earlier HTML example
+    const res = await fetch(`${API_BASE}/r2/upload`, {
+      method: 'POST',
+      body: fd,
     })
-
-    async function confirm() {
-    // MINIMUM: send files to backend when user confirms
-    // Backend can forward/chain to another API.
-    isSubmitting.value = true
-    try {
-        const form = new FormData()
-        // if your backend expects an array name:
-        files.value.forEach((f) => form.append('photos[]', f, f.name))
-
-        // call your API endpoint (adjust the URL to match your server)
-        const res = await fetch('/api/photos/confirm', {
-        method: 'POST',
-        body: form
-        })
-
-        if (!res.ok) throw new Error(`Server returned ${res.status}`)
-        alert('Submitted!')
-
-        // reset UI
-        files.value = []
-        if (fileInput.value) fileInput.value.value = ''
-        if (previewUrl.value) URL.revokeObjectURL(previewUrl.value)
-        previewUrl.value = ''
-    } catch (err) {
-        console.error(err)
-        alert('Sorry, submission failed.')
-    } finally {
-        isSubmitting.value = false
-    }
-    }
+    const json = await res.json()
+    if (!res.ok) throw new Error(json?.error || 'Upload failed')
+    result.value = JSON.stringify(json, null, 2)
+  } catch (e) {
+    error.value = e?.message || 'Upload failed'
+  } finally {
+    busy.value = false
+  }
+}
 </script>
+
+<style scoped>
+.uploader { max-width: 520px; margin: 1rem auto; padding: 1rem; border: 1px solid #eee; border-radius: 8px; }
+label { display: block; margin: 0.5rem 0; }
+input[type="file"] { display: block; margin-top: 0.25rem; }
+button { margin-top: 0.75rem; padding: 0.5rem 0.9rem; }
+.preview { margin-top: 1rem; }
+.preview img { max-width: 100%; display: block; border: 1px solid #eee; border-radius: 6px; }
+.result, .error { margin-top: 1rem; white-space: pre-wrap; word-break: break-word; }
+.error { color: #b00020; }
+</style>
